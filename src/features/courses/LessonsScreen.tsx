@@ -11,7 +11,15 @@ import { useQuery } from '@tanstack/react-query';
 import { courseService } from '../../services/api/courseService';
 
 export default function LessonsScreen({ route, navigation }: any) {
-  const { module } = route.params;
+  const module = route?.params?.module;
+
+  if (!module?.id) {
+    return (
+      <View style={styles.loader}>
+        <Text style={styles.emptyText}>Invalid module. Please reopen lessons from the course page.</Text>
+      </View>
+    );
+  }
 
   const { data: lessons = [], isLoading } = useQuery({
     queryKey: ['lessons', module.id],
@@ -28,9 +36,11 @@ export default function LessonsScreen({ route, navigation }: any) {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.moduleTitle}>{module.title || 'Module Lessons'}</Text>
       <FlatList
         data={lessons}
         keyExtractor={(item) => item.id}
+        ListEmptyComponent={<Text style={styles.emptyText}>No lessons found for this module.</Text>}
         renderItem={({ item }) => (
           <Pressable
             style={styles.card}
@@ -56,6 +66,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
+  moduleTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: '#0f172a',
+  },
   title: { fontWeight: '600' },
   duration: { color: '#666' },
+  emptyText: {
+    color: '#64748b',
+    textAlign: 'center',
+    marginTop: 20,
+  },
 });

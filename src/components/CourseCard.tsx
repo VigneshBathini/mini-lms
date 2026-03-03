@@ -1,7 +1,6 @@
 import React from 'react';
 import { Text, Image, StyleSheet, Pressable } from 'react-native';
 import { Course } from '../types/course';
-import ProgressBar from './ProgressBar';
 
 const FALLBACK_IMAGE = 'https://picsum.photos/seed/course-thumb/400/220';
 
@@ -13,17 +12,38 @@ interface Props {
 }
 
 function CourseCard({ course, onPress, isBookmarked = false, onBookmark }: Props) {
+  const [imageUri, setImageUri] = React.useState(course.thumbnail || FALLBACK_IMAGE);
+
+  React.useEffect(() => {
+    setImageUri(course.thumbnail || FALLBACK_IMAGE);
+  }, [course.thumbnail]);
+
   return (
-    <Pressable style={styles.card} onPress={onPress}>
-      <Image source={{ uri: course.thumbnail || FALLBACK_IMAGE }} style={styles.image} />
+    <Pressable
+      style={styles.card}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Open course ${course.title}`}
+    >
+      <Image source={{ uri: imageUri }} style={styles.image} onError={() => setImageUri(FALLBACK_IMAGE)} />
       {onBookmark && (
-        <Pressable style={styles.bookmark} onPress={onBookmark}>
+        <Pressable
+          style={styles.bookmark}
+          onPress={onBookmark}
+          accessibilityRole="button"
+          accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Save course'}
+        >
           <Text style={styles.bookmarkText}>{isBookmarked ? 'Saved' : 'Save'}</Text>
         </Pressable>
       )}
-      <Text style={styles.title}>{course.title}</Text>
-      <Text style={styles.instructor}>{course.instructor}</Text>
-      <ProgressBar progress={course.progress ?? 0} />
+      <Text style={styles.title} numberOfLines={2}>
+        {course.title}
+      </Text>
+      {!!course.description && (
+        <Text style={styles.description} numberOfLines={3}>
+          {course.description}
+        </Text>
+      )}
     </Pressable>
   );
 }
@@ -34,9 +54,15 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
     marginBottom: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 12,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    shadowColor: '#0f172a',
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
   },
   bookmark: {
     position: 'absolute',
@@ -45,19 +71,29 @@ const styles = StyleSheet.create({
     zIndex: 2,
     backgroundColor: '#eef2ff',
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
   },
   bookmarkText: {
     color: '#1e40af',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 12,
   },
   image: {
-    height: 150,
-    borderRadius: 8,
-    marginBottom: 8,
+    height: 160,
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  title: { fontSize: 16, fontWeight: 'bold' },
-  instructor: { color: '#666' },
+  title: {
+    fontSize: 17,
+    lineHeight: 23,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 6,
+  },
+  description: {
+    color: '#475569',
+    marginTop: 0,
+    lineHeight: 18,
+  },
 });

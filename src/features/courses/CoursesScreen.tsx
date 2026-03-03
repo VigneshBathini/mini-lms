@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Text,
   Button,
+  Pressable,
 } from 'react-native';
 import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
 
@@ -90,13 +91,24 @@ export default function CoursesScreen({ navigation }: any) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} className="flex-1 bg-slate-50">
       <TextInput
         placeholder="Search courses..."
         value={search}
         onChangeText={setSearch}
         style={styles.search}
+        className="rounded-xl border border-slate-200 bg-white p-3"
+        accessibilityLabel="Search courses"
       />
+      {filteredCourses.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>No matching courses</Text>
+          <Text style={styles.emptyText}>Try a different keyword or clear your search.</Text>
+          <Pressable style={styles.clearButton} onPress={() => setSearch('')}>
+            <Text style={styles.clearButtonText}>Clear search</Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       <LegendList
         data={filteredCourses}
@@ -111,16 +123,37 @@ export default function CoursesScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, padding: 16, backgroundColor: '#f8fafc' },
   search: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#fff',
     padding: 12,
     borderRadius: 12,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   loader: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  emptyState: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    marginBottom: 12,
+  },
+  emptyTitle: { fontWeight: '700', color: '#0f172a' },
+  emptyText: { marginTop: 4, color: '#64748b' },
+  clearButton: {
+    marginTop: 10,
+    alignSelf: 'flex-start',
+    backgroundColor: '#e2e8f0',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  clearButtonText: { color: '#0f172a', fontWeight: '600' },
 });

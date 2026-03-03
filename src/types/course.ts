@@ -7,6 +7,7 @@ export interface Module {
 export interface Course {
   id: string;
   title: string;
+  label?: string;
   instructor: string;
   thumbnail: string;
   progress?: number;

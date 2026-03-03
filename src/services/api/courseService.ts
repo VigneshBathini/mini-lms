@@ -8,6 +8,77 @@ import { mockModules } from '../../features/courses/mockModules';
 
 const FALLBACK_THUMBNAIL = 'https://picsum.photos/seed/course/400/220';
 
+const TECH_COURSE_TEMPLATES = [
+  {
+    title: 'React Native Fundamentals',
+    label: 'React Native',
+    description: 'Build cross-platform mobile apps with components, navigation, hooks, and state management.',
+  },
+  {
+    title: 'Express.js API Development',
+    label: 'Express.js',
+    description: 'Design REST APIs with routing, middleware, authentication, and production-ready error handling.',
+  },
+  {
+    title: 'TypeScript for Production Apps',
+    label: 'TypeScript',
+    description: 'Write safer frontend and backend code using strong typing, interfaces, and reusable utility types.',
+  },
+  {
+    title: 'Node.js Backend Engineering',
+    label: 'Node.js',
+    description: 'Learn async workflows, module architecture, service layers, and scalable backend patterns.',
+  },
+  {
+    title: 'MongoDB Data Modeling',
+    label: 'MongoDB',
+    description: 'Design document schemas, indexing strategies, and efficient query patterns for app backends.',
+  },
+  {
+    title: 'Authentication & Security Essentials',
+    label: 'Security',
+    description: 'Implement JWT auth, token refresh, secure storage, and API protection best practices.',
+  },
+  {
+    title: 'React Query & API State',
+    label: 'React Query',
+    description: 'Handle server-state caching, retries, invalidation, and optimistic UI updates in React apps.',
+  },
+  {
+    title: 'Testing React Native Apps',
+    label: 'Testing',
+    description: 'Create reliable tests with Jest and Testing Library for components, hooks, and async flows.',
+  },
+  {
+    title: 'CI/CD for Mobile Projects',
+    label: 'DevOps',
+    description: 'Set up automated lint, test, build, and deployment pipelines for React Native apps.',
+  },
+  {
+    title: 'System Design for LMS Apps',
+    label: 'Architecture',
+    description: 'Model scalable learning platforms with modular architecture, observability, and resilience.',
+  },
+];
+
+const deriveCourseContent = (index: number) => TECH_COURSE_TEMPLATES[index % TECH_COURSE_TEMPLATES.length];
+
+const getThumbnailFromProduct = (product: any): string => {
+  if (typeof product?.thumbnail === 'string' && product.thumbnail.length > 0) {
+    return product.thumbnail;
+  }
+
+  if (typeof product?.image === 'string' && product.image.length > 0) {
+    return product.image;
+  }
+
+  if (Array.isArray(product?.images) && typeof product.images[0] === 'string') {
+    return product.images[0];
+  }
+
+  return FALLBACK_THUMBNAIL;
+};
+
 const buildCourseLessons = (courseId: string): Lesson[] => {
   const modules = mockModules[courseId] || [];
   if (modules.length === 0) {
@@ -55,12 +126,14 @@ export const courseService = {
 
       const mappedCourses = products.map((p, idx) => {
         const instructor = instructors.length ? instructors[idx % instructors.length] : 'Unknown';
+        const content = deriveCourseContent(idx);
         return {
           id: String(p.id || idx),
-          title: p.title || p.name || 'Untitled course',
+          title: content.title,
+          label: content.label,
           instructor,
-          thumbnail: p.image || p.thumbnail || FALLBACK_THUMBNAIL,
-          description: p.description || p.body || '',
+          thumbnail: getThumbnailFromProduct(p),
+          description: content.description,
           progress: Number.isFinite(p.rating) ? Math.round((p.rating / 5) * 100) : 0,
         } as Course;
       });

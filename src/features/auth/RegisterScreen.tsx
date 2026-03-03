@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Alert,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 
 export default function RegisterScreen({ navigation }: any) {
@@ -25,47 +34,99 @@ export default function RegisterScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <TextInput
-        placeholder="Name"
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-      <Button title={loading ? 'Registering...' : 'Register'} onPress={handleRegister} disabled={loading} />
-      <View style={styles.loginLink}>
-        <Text>Already have an account?</Text>
-        <Button title="Login" onPress={() => navigation.navigate('Login')} />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={styles.card}>
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Set up your account to start learning.</Text>
+
+        <Text style={styles.label}>Name</Text>
+        <TextInput
+          placeholder="Your full name"
+          value={name}
+          onChangeText={setName}
+          style={styles.input}
+          textContentType="name"
+          accessibilityLabel="Name input"
+        />
+
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          placeholder="you@example.com"
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          textContentType="emailAddress"
+          accessibilityLabel="Email input"
+        />
+
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          placeholder="Create password"
+          value={password}
+          onChangeText={setPassword}
+          style={styles.input}
+          secureTextEntry
+          textContentType="newPassword"
+          accessibilityLabel="Password input"
+        />
+
+        <Pressable
+          style={[styles.primaryButton, loading && styles.buttonDisabled]}
+          onPress={handleRegister}
+          disabled={loading}
+          accessibilityRole="button"
+          accessibilityLabel="Register"
+        >
+          <Text style={styles.primaryButtonText}>{loading ? 'Registering...' : 'Register'}</Text>
+        </Pressable>
+
+        <View style={styles.loginLink}>
+          <Text style={styles.helperText}>Already have an account?</Text>
+          <Pressable onPress={() => navigation.navigate('Login')} accessibilityRole="button">
+            <Text style={styles.linkText}>Sign in</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
+  container: { flex: 1, justifyContent: 'center', backgroundColor: '#f1f5f9', padding: 16 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  title: { fontSize: 28, fontWeight: '700', marginBottom: 8, color: '#0f172a' },
+  subtitle: { fontSize: 14, color: '#64748b', marginBottom: 18 },
+  label: { color: '#334155', marginBottom: 6, fontWeight: '600' },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
+    borderColor: '#cbd5e1',
+    borderRadius: 10,
     padding: 12,
     marginBottom: 12,
+    backgroundColor: '#f8fafc',
   },
-  loginLink: { marginTop: 20, alignItems: 'center' },
+  primaryButton: {
+    marginTop: 4,
+    backgroundColor: '#0f172a',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  buttonDisabled: { opacity: 0.6 },
+  primaryButtonText: { color: '#fff', fontWeight: '700' },
+  loginLink: { marginTop: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  helperText: { color: '#64748b' },
+  linkText: { marginLeft: 4, color: '#1d4ed8', fontWeight: '700' },
 });

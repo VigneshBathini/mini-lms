@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 
 export default function OfflineBanner() {
   const isOnline = useNetworkStatus();
+  const insets = useSafeAreaInsets();
   if (isOnline) return null;
   return (
-    <View style={styles.banner}>
+    <View style={[styles.banner, { paddingTop: Math.max(6, insets.top) }]}>
       <Text style={styles.text}>You're offline</Text>
     </View>
   );

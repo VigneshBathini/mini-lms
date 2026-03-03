@@ -7,22 +7,30 @@ import {
   Alert,
   ActivityIndicator,
   TouchableOpacity,
+  Pressable,
 } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { courseService } from '../../services/api/courseService';
+import { downloadLessonVideo, getDownloadedLessonUri } from '../../services/downloads';
+import { usePreferencesStore } from '../../store/preferencesStore';
 
 const { width } = Dimensions.get('window');
 
 export default function LessonDetailsScreen({ route }: any) {
   const { lesson } = route.params;
   const queryClient = useQueryClient();
+  const autoplayVideos = usePreferencesStore((state) => state.autoplayVideos);
+  const downloadOnWifiOnly = usePreferencesStore((state) => state.downloadOnWifiOnly);
 
   const [completed, setCompleted] = useState(lesson.completed || false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadedUri, setDownloadedUri] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: () => courseService.markLessonCompleted(lesson.id),
@@ -37,18 +45,31 @@ export default function LessonDetailsScreen({ route }: any) {
   });
 
   const videoSource = useMemo(() => {
+    const baseSource = downloadedUri || lesson.videoUrl;
     const separator = lesson.videoUrl.includes('?') ? '&' : '?';
-    return `${lesson.videoUrl}${separator}retry=${retryKey}`;
-  }, [lesson.videoUrl, retryKey]);
+    if (downloadedUri) {
+      return downloadedUri;
+    }
+    return `${baseSource}${separator}retry=${retryKey}`;
+  }, [lesson.videoUrl, retryKey, downloadedUri]);
 
   const player = useVideoPlayer(videoSource, (videoPlayer) => {
     videoPlayer.loop = false;
   });
 
   useEffect(() => {
+    getDownloadedLessonUri(lesson.id)
+      .then((uri) => setDownloadedUri(uri))
+      .catch(() => setDownloadedUri(null));
+  }, [lesson.id]);
+
+  useEffect(() => {
     const loadSubscription = player.addListener('sourceLoad', () => {
       setLoading(false);
       setError(false);
+      if (autoplayVideos) {
+        player.play();
+      }
     });
 
     const statusSubscription = player.addListener('statusChange', ({ status, error: playerError }) => {
@@ -69,7 +90,7 @@ export default function LessonDetailsScreen({ route }: any) {
       statusSubscription.remove();
       endSubscription.remove();
     };
-  }, [player, completed, mutation]);
+  }, [player, completed, mutation, autoplayVideos]);
 
   useEffect(() => {
     return () => {
@@ -89,6 +110,30 @@ export default function LessonDetailsScreen({ route }: any) {
 
   const handleFullscreenExit = () => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+  };
+
+  const handleDownload = async () => {
+    if (downloading || downloadedUri) {
+      return;
+    }
+
+    try {
+      setDownloading(true);
+      setDownloadProgress(0);
+      const uri = await downloadLessonVideo({
+        lessonId: lesson.id,
+        lessonTitle: lesson.title,
+        url: lesson.videoUrl,
+        wifiOnly: downloadOnWifiOnly,
+        onProgress: (progress) => setDownloadProgress(progress),
+      });
+      setDownloadedUri(uri);
+      Alert.alert('Download complete', 'Lesson saved for offline access.');
+    } catch (downloadError: any) {
+      Alert.alert('Download failed', downloadError?.message || 'Unable to download lesson video.');
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -135,6 +180,22 @@ export default function LessonDetailsScreen({ route }: any) {
           <Text style={styles.completedText}>Lesson Completed</Text>
         </View>
       )}
+
+      <View style={styles.downloadCard}>
+        <Text style={styles.downloadTitle}>Offline Access</Text>
+        <Text style={styles.downloadMeta}>
+          {downloadOnWifiOnly ? 'Wi-Fi only downloads enabled' : 'Downloads allowed on any network'}
+        </Text>
+        <Pressable
+          style={[styles.downloadButton, (downloading || downloadedUri) && styles.downloadButtonDisabled]}
+          onPress={handleDownload}
+          disabled={downloading || Boolean(downloadedUri)}
+        >
+          <Text style={styles.downloadButtonText}>
+            {downloadedUri ? 'Downloaded' : downloading ? `Downloading ${Math.round(downloadProgress * 100)}%` : 'Download Lesson'}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -211,5 +272,36 @@ const styles = StyleSheet.create({
     color: '#34c759',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  downloadCard: {
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
+    backgroundColor: '#f8fbff',
+    borderRadius: 12,
+    padding: 12,
+  },
+  downloadTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  downloadMeta: {
+    color: '#64748b',
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  downloadButton: {
+    backgroundColor: '#1d4ed8',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  downloadButtonDisabled: {
+    backgroundColor: '#94a3b8',
+  },
+  downloadButtonText: {
+    color: '#fff',
+    fontWeight: '700',
   },
 });

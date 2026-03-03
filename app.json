@@ -32,8 +32,10 @@
       "expo-router",
       "expo-secure-store",
       "expo-notifications",
+      "expo-image-picker",
       "expo-video",
-      "expo-audio"
+      "expo-audio",
+      "expo-asset"
     ]
   }
 }
