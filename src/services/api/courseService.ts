@@ -6,7 +6,7 @@ import { mockCourses } from '../../features/courses/mockCourses';
 import { mockLessons } from '../../features/courses/mockLessons';
 import { mockModules } from '../../features/courses/mockModules';
 
-const FALLBACK_THUMBNAIL = 'https://picsum.photos/seed/course/400/220';
+const FALLBACK_THUMBNAIL = 'https://picsum.photos/seed/course-learning-default/800/450';
 
 const TECH_COURSE_TEMPLATES = [
   {
@@ -62,6 +62,19 @@ const TECH_COURSE_TEMPLATES = [
 ];
 
 const deriveCourseContent = (index: number) => TECH_COURSE_TEMPLATES[index % TECH_COURSE_TEMPLATES.length];
+
+const TECH_COURSE_IMAGES = [
+  'https://picsum.photos/seed/react-native-course/800/450',
+  'https://picsum.photos/seed/express-course/800/450',
+  'https://picsum.photos/seed/typescript-course/800/450',
+  'https://picsum.photos/seed/nodejs-course/800/450',
+  'https://picsum.photos/seed/mongodb-course/800/450',
+  'https://picsum.photos/seed/security-course/800/450',
+  'https://picsum.photos/seed/react-query-course/800/450',
+  'https://picsum.photos/seed/testing-course/800/450',
+  'https://picsum.photos/seed/devops-course/800/450',
+  'https://picsum.photos/seed/system-design-course/800/450',
+];
 
 const getThumbnailFromProduct = (product: any): string => {
   if (typeof product?.thumbnail === 'string' && product.thumbnail.length > 0) {
@@ -132,7 +145,7 @@ export const courseService = {
           title: content.title,
           label: content.label,
           instructor,
-          thumbnail: getThumbnailFromProduct(p),
+          thumbnail: TECH_COURSE_IMAGES[idx % TECH_COURSE_IMAGES.length] || getThumbnailFromProduct(p) || FALLBACK_THUMBNAIL,
           description: content.description,
           progress: Number.isFinite(p.rating) ? Math.round((p.rating / 5) * 100) : 0,
         } as Course;
