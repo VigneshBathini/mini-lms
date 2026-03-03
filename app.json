@@ -3,7 +3,8 @@
     "name": "mini-lms",
     "slug": "mini-lms",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "scheme": "minilms",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -21,10 +22,18 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.vigneshbathini.minilms"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications",
+      "expo-video",
+      "expo-audio"
+    ]
   }
 }
