@@ -1,13 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useCourseStore } from '../../store/courseStore';
@@ -19,9 +11,9 @@ type StatCardProps = {
 
 function StatCard({ label, value }: StatCardProps) {
   return (
-    <View style={styles.statCard}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View className="mb-2.5 w-[48%] rounded-xl border border-slate-200 bg-white px-3 py-3.5">
+      <Text className="text-xl font-bold text-slate-900">{value}</Text>
+      <Text className="mt-1 text-slate-500">{label}</Text>
     </View>
   );
 }
@@ -36,18 +28,18 @@ type CourseRowProps = {
 
 function CourseRow({ id, title, instructor, progress, onPress }: CourseRowProps) {
   return (
-    <Pressable style={styles.courseRow} onPress={() => onPress(id)}>
-      <View style={styles.courseHeader}>
-        <Text style={styles.courseTitle} numberOfLines={1}>
+    <Pressable className="mb-2 rounded-xl bg-slate-50 p-2.5" onPress={() => onPress(id)}>
+      <View className="flex-row items-center justify-between">
+        <Text className="mr-2 flex-1 font-semibold text-slate-800" numberOfLines={1}>
           {title}
         </Text>
-        <Text style={styles.progressText}>{progress}%</Text>
+        <Text className="font-bold text-blue-700">{progress}%</Text>
       </View>
-      <Text style={styles.courseInstructor} numberOfLines={1}>
+      <Text className="mb-2 mt-0.5 text-slate-500" numberOfLines={1}>
         {instructor}
       </Text>
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${progress}%` }]} />
+      <View className="h-2 w-full overflow-hidden rounded-full bg-slate-300">
+        <View className="h-full bg-blue-600" style={{ width: `${progress}%` }} />
       </View>
     </Pressable>
   );
@@ -67,26 +59,29 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCourses = useCallback(async (isRefresh = false) => {
-    if (isRefresh) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-
-    setError(null);
-    try {
-      await loadCourses();
-    } catch (err: any) {
-      setError(err?.message || 'Could not load dashboard data.');
-    } finally {
+  const fetchCourses = useCallback(
+    async (isRefresh = false) => {
       if (isRefresh) {
-        setRefreshing(false);
+        setRefreshing(true);
       } else {
-        setLoading(false);
+        setLoading(true);
       }
-    }
-  }, [loadCourses]);
+
+      setError(null);
+      try {
+        await loadCourses();
+      } catch (err: any) {
+        setError(err?.message || 'Could not load dashboard data.');
+      } finally {
+        if (isRefresh) {
+          setRefreshing(false);
+        } else {
+          setLoading(false);
+        }
+      }
+    },
+    [loadCourses]
+  );
 
   useEffect(() => {
     if (courses.length === 0) {
@@ -138,7 +133,7 @@ export default function DashboardScreen() {
 
   if (loading && courses.length === 0) {
     return (
-      <View style={styles.centered}>
+      <View className="flex-1 items-center justify-center bg-slate-50">
         <ActivityIndicator size="large" />
       </View>
     );
@@ -147,38 +142,36 @@ export default function DashboardScreen() {
   return (
     <ScrollView
       className="flex-1 bg-slate-50"
-      contentContainerStyle={styles.content}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={() => fetchCourses(true)} />
-      }
+      contentContainerStyle={{ padding: 16, paddingBottom: 28 }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => fetchCourses(true)} />}
     >
-      <View style={styles.header} className="mb-4">
-        <Text style={styles.greeting} className="text-slate-900">Welcome back{user?.name ? `, ${user.name}` : ''}</Text>
-        <Text style={styles.subtext} className="text-slate-600">Track your learning and jump back into your courses.</Text>
+      <View className="mb-4">
+        <Text className="text-3xl font-bold text-slate-900">Welcome back{user?.name ? `, ${user.name}` : ''}</Text>
+        <Text className="mt-1.5 text-slate-600">Track your learning and jump back into your courses.</Text>
       </View>
 
-      <View style={styles.statsGrid}>
+      <View className="mb-4 flex-row flex-wrap justify-between">
         <StatCard label="Enrolled" value={enrolledCourses.length} />
         <StatCard label="Bookmarked" value={bookmarks.length} />
         <StatCard label="Avg Progress" value={`${averageProgress}%`} />
         <StatCard label="Completed" value={completedCourses} />
       </View>
 
-      <View style={styles.quickActions}>
-        <Pressable style={styles.actionButton} onPress={() => router.push('/(tabs)/courses')}>
-          <Text style={styles.actionText}>Browse Courses</Text>
+      <View className="mb-3 flex-row">
+        <Pressable className="mr-2 flex-1 items-center rounded-xl bg-slate-900 py-3" onPress={() => router.push('/(tabs)/courses')}>
+          <Text className="font-semibold text-white">Browse Courses</Text>
         </Pressable>
-        <Pressable style={styles.actionButtonSecondary} onPress={() => router.push('/(tabs)/profile')}>
-          <Text style={styles.actionTextSecondary}>Profile</Text>
+        <Pressable className="ml-2 flex-1 items-center rounded-xl bg-slate-200 py-3" onPress={() => router.push('/(tabs)/profile')}>
+          <Text className="font-semibold text-slate-900">Profile</Text>
         </Pressable>
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text className="mb-3 text-red-700">{error}</Text> : null}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Continue Learning</Text>
+      <View className="mb-3 rounded-xl border border-slate-200 bg-white p-3">
+        <Text className="mb-2 text-base font-bold text-slate-900">Continue Learning</Text>
         {continueLearning.length === 0 ? (
-          <Text style={styles.emptyText}>Enroll in a course to start learning.</Text>
+          <Text className="text-slate-500">Enroll in a course to start learning.</Text>
         ) : (
           continueLearning.map((course) => (
             <CourseRow
@@ -193,10 +186,10 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Bookmarked</Text>
+      <View className="mb-3 rounded-xl border border-slate-200 bg-white p-3">
+        <Text className="mb-2 text-base font-bold text-slate-900">Bookmarked</Text>
         {bookmarkedCourses.length === 0 ? (
-          <Text style={styles.emptyText}>You have no bookmarked courses yet.</Text>
+          <Text className="text-slate-500">You have no bookmarked courses yet.</Text>
         ) : (
           bookmarkedCourses.slice(0, 3).map((course) => (
             <CourseRow
@@ -211,10 +204,10 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recommended For You</Text>
+      <View className="mb-3 rounded-xl border border-slate-200 bg-white p-3">
+        <Text className="mb-2 text-base font-bold text-slate-900">Recommended For You</Text>
         {recommended.length === 0 ? (
-          <Text style={styles.emptyText}>You are enrolled in all available courses.</Text>
+          <Text className="text-slate-500">You are enrolled in all available courses.</Text>
         ) : (
           recommended.map((course) => (
             <CourseRow
@@ -229,159 +222,9 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <Pressable style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutText}>Logout</Text>
+      <Pressable className="mt-1 rounded-xl bg-red-100 py-3" onPress={logout}>
+        <Text className="text-center font-bold text-red-700">Logout</Text>
       </Pressable>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 28,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  header: {
-    marginBottom: 18,
-  },
-  greeting: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0f172a',
-  },
-  subtext: {
-    marginTop: 6,
-    color: '#475569',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 18,
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0f172a',
-  },
-  statLabel: {
-    marginTop: 4,
-    color: '#64748b',
-  },
-  quickActions: {
-    flexDirection: 'row',
-    marginBottom: 14,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: '#0f172a',
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginRight: 8,
-    alignItems: 'center',
-  },
-  actionButtonSecondary: {
-    flex: 1,
-    backgroundColor: '#e2e8f0',
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginLeft: 8,
-    alignItems: 'center',
-  },
-  actionText: {
-    color: '#ffffff',
-    fontWeight: '600',
-  },
-  actionTextSecondary: {
-    color: '#0f172a',
-    fontWeight: '600',
-  },
-  errorText: {
-    color: '#b91c1c',
-    marginBottom: 12,
-  },
-  section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    padding: 12,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0f172a',
-    marginBottom: 8,
-  },
-  emptyText: {
-    color: '#64748b',
-  },
-  courseRow: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 8,
-  },
-  courseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  courseTitle: {
-    flex: 1,
-    fontWeight: '600',
-    color: '#1e293b',
-  },
-  progressText: {
-    color: '#1d4ed8',
-    fontWeight: '700',
-  },
-  courseInstructor: {
-    color: '#64748b',
-    marginTop: 2,
-    marginBottom: 8,
-  },
-  progressTrack: {
-    width: '100%',
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: '#cbd5e1',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#2563eb',
-  },
-  logoutButton: {
-    marginTop: 6,
-    backgroundColor: '#fee2e2',
-    borderRadius: 10,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  logoutText: {
-    color: '#b91c1c',
-    fontWeight: '700',
-  },
-});

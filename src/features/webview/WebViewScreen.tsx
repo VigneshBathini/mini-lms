@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Text, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 export default function WebViewScreen({ route }: any) {
@@ -16,7 +16,8 @@ export default function WebViewScreen({ route }: any) {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
 
-  const html = useMemo(() => `
+  const html = useMemo(
+    () => `
     <!DOCTYPE html>
     <html>
     <head>
@@ -41,12 +42,13 @@ export default function WebViewScreen({ route }: any) {
         <p class="desc">${escapeHtml(description)}</p>
       </div>
       <script>
-        // Notify react native that the page has loaded
         window.ReactNativeWebView.postMessage('loaded:' + ${JSON.stringify(courseTitle)});
       </script>
     </body>
     </html>
-  `, [courseId, courseTitle, courseThumbnail, instructor, description]);
+  `,
+    [courseId, courseTitle, courseThumbnail, instructor, description]
+  );
 
   const [loadError, setLoadError] = React.useState(false);
   const [statusMessage, setStatusMessage] = React.useState('Loading content...');
@@ -64,20 +66,20 @@ export default function WebViewScreen({ route }: any) {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1">
       {loadError ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Failed to load content.</Text>
-          <Pressable style={styles.retryButton} onPress={handleRetry}>
-            <Text style={styles.retryText}>Retry</Text>
+        <View className="flex-1 items-center justify-center">
+          <Text className="mb-2.5 text-red-700">Failed to load content.</Text>
+          <Pressable className="rounded-lg bg-blue-700 px-4 py-2.5" onPress={handleRetry}>
+            <Text className="font-semibold text-white">Retry</Text>
           </Pressable>
         </View>
       ) : (
-        <View style={styles.webViewWrapper}>
-          <Text style={styles.statusText}>{statusMessage}</Text>
+        <View className="flex-1">
+          <Text className="bg-slate-100 px-3 py-2 text-slate-600">{statusMessage}</Text>
           <WebView
             ref={webViewRef}
-            style={styles.webview}
+            style={{ flex: 1 }}
             originWhitelist={['*']}
             source={{ html, headers: { 'X-Course-Id': courseId } }}
             onMessage={handleMessage}
@@ -91,24 +93,3 @@ export default function WebViewScreen({ route }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  webViewWrapper: { flex: 1 },
-  webview: { flex: 1 },
-  statusText: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    color: '#475569',
-    backgroundColor: '#f1f5f9',
-  },
-  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#b91c1c', marginBottom: 10 },
-  retryButton: {
-    backgroundColor: '#1d4ed8',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryText: { color: '#fff', fontWeight: '600' },
-});

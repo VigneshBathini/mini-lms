@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, Image, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { View, Text, Button, Image, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuthStore } from '../../store/authStore';
 import { useCourseStore } from '../../store/courseStore';
@@ -66,8 +66,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} className="flex-1 bg-slate-50">
-      <View style={styles.header} className="rounded-2xl border border-slate-200 bg-white">
+    <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
+      <View className="mb-4 items-center rounded-2xl border border-slate-200 bg-white py-4">
         <TouchableOpacity
           onPress={takePhoto}
           onLongPress={pickImage}
@@ -75,43 +75,43 @@ export default function ProfileScreen() {
           accessibilityLabel="Change profile photo"
         >
           {user?.avatar ? (
-            <Image source={{ uri: user.avatar }} style={styles.avatar} />
+            <Image source={{ uri: user.avatar }} className="mb-3 h-24 w-24 rounded-full" />
           ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>Add Photo</Text>
+            <View className="mb-3 h-24 w-24 items-center justify-center rounded-full bg-blue-100">
+              <Text className="font-semibold text-blue-900">Add Photo</Text>
             </View>
           )}
         </TouchableOpacity>
-        <Text style={styles.name}>{user?.name || 'Guest'}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
-        <Text style={styles.avatarHint}>Tap avatar to capture, or choose from gallery</Text>
-        <TouchableOpacity style={styles.galleryButton} onPress={pickImage}>
-          <Text style={styles.galleryButtonText}>Choose from Gallery</Text>
+        <Text className="text-xl font-bold text-slate-900">{user?.name || 'Guest'}</Text>
+        <Text className="text-slate-500">{user?.email}</Text>
+        <Text className="mt-2 text-xs text-slate-500">Tap avatar to capture, or choose from gallery</Text>
+        <TouchableOpacity className="mt-2.5 rounded-lg bg-slate-200 px-3 py-2" onPress={pickImage}>
+          <Text className="font-semibold text-slate-900">Choose from Gallery</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.stats} className="rounded-2xl border border-slate-200 bg-white">
-        <Text style={styles.sectionTitle}>Your Stats</Text>
+      <View className="mb-3 rounded-2xl border border-slate-200 bg-white p-3">
+        <Text className="mb-2 text-base font-bold text-slate-900">Your Stats</Text>
         <Text>Courses enrolled: {enrolled.length}</Text>
         <Text>Bookmarks: {bookmarks.length}</Text>
         <Text>Average progress: {averageProgress}%</Text>
       </View>
 
-      <View style={styles.preferences} className="rounded-2xl border border-slate-200 bg-white">
-        <Text style={styles.preferencesTitle}>Preferences</Text>
+      <View className="mb-5 rounded-2xl border border-slate-200 bg-white p-3">
+        <Text className="mb-2.5 text-base font-bold text-slate-900">Preferences</Text>
 
-        <View style={styles.preferenceRow}>
-          <Text style={styles.preferenceLabel}>Learning reminders</Text>
+        <View className="mb-2.5 flex-row items-center justify-between">
+          <Text className="text-sm text-slate-700">Learning reminders</Text>
           <Switch value={remindersEnabled} onValueChange={(value) => setPreference('remindersEnabled', value)} />
         </View>
 
-        <View style={styles.preferenceRow}>
-          <Text style={styles.preferenceLabel}>Autoplay videos</Text>
+        <View className="mb-2.5 flex-row items-center justify-between">
+          <Text className="text-sm text-slate-700">Autoplay videos</Text>
           <Switch value={autoplayVideos} onValueChange={(value) => setPreference('autoplayVideos', value)} />
         </View>
 
-        <View style={styles.preferenceRow}>
-          <Text style={styles.preferenceLabel}>Download on Wi-Fi only</Text>
+        <View className="mb-2.5 flex-row items-center justify-between">
+          <Text className="text-sm text-slate-700">Download on Wi-Fi only</Text>
           <Switch
             value={downloadOnWifiOnly}
             onValueChange={(value) => setPreference('downloadOnWifiOnly', value)}
@@ -123,45 +123,3 @@ export default function ProfileScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
-  content: { padding: 16, paddingBottom: 24 },
-  header: {
-    alignItems: 'center',
-    marginBottom: 18,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
-    paddingVertical: 16,
-  },
-  avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 12 },
-  avatarPlaceholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#dbeafe', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  avatarText: { color: '#1e3a8a', fontWeight: '600' },
-  name: { fontSize: 20, fontWeight: 'bold', color: '#0f172a' },
-  email: { fontSize: 14, color: '#64748b' },
-  avatarHint: { fontSize: 12, color: '#64748b', marginTop: 8 },
-  galleryButton: {
-    marginTop: 10,
-    backgroundColor: '#e2e8f0',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  galleryButtonText: { color: '#0f172a', fontWeight: '600' },
-  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 8, color: '#0f172a' },
-  stats: {
-    marginBottom: 14,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
-    padding: 12,
-    gap: 4,
-  },
-  preferences: { marginBottom: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 14, padding: 12 },
-  preferencesTitle: { fontSize: 16, fontWeight: '700', marginBottom: 10 },
-  preferenceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  preferenceLabel: { color: '#333', fontSize: 14 },
-});

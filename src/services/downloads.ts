@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system/legacy';
+import { Directory, File, Paths } from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -7,15 +7,9 @@ const DOWNLOAD_MAP_KEY = 'lesson_download_map';
 type DownloadMap = Record<string, string>;
 
 const ensureDownloadDir = async () => {
-  const baseDir = FileSystem.documentDirectory;
-  if (!baseDir) {
-    throw new Error('File system is unavailable on this device.');
-  }
-
-  const downloadDir = `${baseDir}downloads/`;
-  const info = await FileSystem.getInfoAsync(downloadDir);
-  if (!info.exists) {
-    await FileSystem.makeDirectoryAsync(downloadDir, { intermediates: true });
+  const downloadDir = new Directory(Paths.document, 'downloads');
+  if (!downloadDir.exists) {
+    downloadDir.create({ idempotent: true, intermediates: true });
   }
   return downloadDir;
 };
@@ -45,8 +39,8 @@ export const getDownloadedLessonUri = async (lessonId: string) => {
     return null;
   }
 
-  const info = await FileSystem.getInfoAsync(uri);
-  return info.exists ? uri : null;
+  const file = new File(uri);
+  return file.exists ? uri : null;
 };
 
 const validateNetworkForDownload = async (wifiOnly: boolean) => {
@@ -65,7 +59,6 @@ type DownloadOptions = {
   lessonTitle: string;
   url: string;
   wifiOnly: boolean;
-  onProgress?: (value: number) => void;
 };
 
 export const downloadLessonVideo = async ({
@@ -73,32 +66,19 @@ export const downloadLessonVideo = async ({
   lessonTitle,
   url,
   wifiOnly,
-  onProgress,
 }: DownloadOptions) => {
   await validateNetworkForDownload(wifiOnly);
 
   const downloadDir = await ensureDownloadDir();
-  const targetUri = `${downloadDir}${sanitizeName(lessonTitle || lessonId)}-${lessonId}.mp4`;
+  const targetFile = new File(downloadDir, `${sanitizeName(lessonTitle || lessonId)}-${lessonId}.mp4`);
 
-  const task = FileSystem.createDownloadResumable(
-    url,
-    targetUri,
-    {},
-    ({ totalBytesWritten, totalBytesExpectedToWrite }) => {
-      if (!onProgress || !totalBytesExpectedToWrite) {
-        return;
-      }
-      onProgress(Math.min(1, totalBytesWritten / totalBytesExpectedToWrite));
-    }
-  );
-
-  const result = await task.downloadAsync();
-  if (!result?.uri) {
+  const resultFile = await File.downloadFileAsync(url, targetFile, { idempotent: true });
+  if (!resultFile?.uri) {
     throw new Error('Download failed. Please try again.');
   }
 
   const map = await readDownloadMap();
-  map[lessonId] = result.uri;
+  map[lessonId] = resultFile.uri;
   await saveDownloadMap(map);
-  return result.uri;
+  return resultFile.uri;
 };

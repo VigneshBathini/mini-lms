@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
-  StyleSheet,
   TextInput,
   ActivityIndicator,
   Text,
-  Button,
   Pressable,
 } from 'react-native';
 import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
@@ -75,7 +73,7 @@ export default function CoursesScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loader}>
+      <View className="flex-1 items-center justify-center bg-slate-50">
         <ActivityIndicator size="large" />
       </View>
     );
@@ -83,29 +81,30 @@ export default function CoursesScreen({ navigation }: any) {
 
   if (error && filteredCourses.length === 0) {
     return (
-      <View style={styles.loader}>
-        <Text>{error}</Text>
-        <Button title="Retry" onPress={loadInitialCourses} />
+      <View className="flex-1 items-center justify-center bg-slate-50 px-6">
+        <Text className="mb-3 text-center text-slate-700">{error}</Text>
+        <Pressable className="rounded-lg bg-slate-900 px-4 py-2" onPress={loadInitialCourses}>
+          <Text className="font-semibold text-white">Retry</Text>
+        </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.container} className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-slate-50 p-4">
       <TextInput
         placeholder="Search courses..."
         value={search}
         onChangeText={setSearch}
-        style={styles.search}
-        className="rounded-xl border border-slate-200 bg-white p-3"
+        className="mb-4 rounded-xl border border-slate-200 bg-white p-3"
         accessibilityLabel="Search courses"
       />
       {filteredCourses.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No matching courses</Text>
-          <Text style={styles.emptyText}>Try a different keyword or clear your search.</Text>
-          <Pressable style={styles.clearButton} onPress={() => setSearch('')}>
-            <Text style={styles.clearButtonText}>Clear search</Text>
+        <View className="mb-3 rounded-xl border border-slate-200 bg-white p-4">
+          <Text className="font-bold text-slate-900">No matching courses</Text>
+          <Text className="mt-1 text-slate-500">Try a different keyword or clear your search.</Text>
+          <Pressable className="mt-2.5 self-start rounded-lg bg-slate-200 px-3 py-2" onPress={() => setSearch('')}>
+            <Text className="font-semibold text-slate-900">Clear search</Text>
           </Pressable>
         </View>
       ) : null}
@@ -121,39 +120,3 @@ export default function CoursesScreen({ navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#f8fafc' },
-  search: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyState: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    marginBottom: 12,
-  },
-  emptyTitle: { fontWeight: '700', color: '#0f172a' },
-  emptyText: { marginTop: 4, color: '#64748b' },
-  clearButton: {
-    marginTop: 10,
-    alignSelf: 'flex-start',
-    backgroundColor: '#e2e8f0',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  clearButtonText: { color: '#0f172a', fontWeight: '600' },
-});

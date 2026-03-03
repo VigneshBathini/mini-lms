@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   Alert,
   Pressable,
   KeyboardAvoidingView,
@@ -35,29 +34,29 @@ export default function RegisterScreen({ navigation }: any) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1 justify-center bg-slate-100 p-4"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.card}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Set up your account to start learning.</Text>
+      <View className="rounded-2xl border border-slate-200 bg-white p-5">
+        <Text className="mb-2 text-3xl font-bold text-slate-900">Create Account</Text>
+        <Text className="mb-5 text-sm text-slate-500">Set up your account to start learning.</Text>
 
-        <Text style={styles.label}>Name</Text>
+        <Text className="mb-1.5 font-semibold text-slate-700">Name</Text>
         <TextInput
           placeholder="Your full name"
           value={name}
           onChangeText={setName}
-          style={styles.input}
+          className="mb-3 rounded-xl border border-slate-300 bg-slate-50 p-3"
           textContentType="name"
           accessibilityLabel="Name input"
         />
 
-        <Text style={styles.label}>Email</Text>
+        <Text className="mb-1.5 font-semibold text-slate-700">Email</Text>
         <TextInput
           placeholder="you@example.com"
           value={email}
           onChangeText={setEmail}
-          style={styles.input}
+          className="mb-3 rounded-xl border border-slate-300 bg-slate-50 p-3"
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
@@ -65,68 +64,34 @@ export default function RegisterScreen({ navigation }: any) {
           accessibilityLabel="Email input"
         />
 
-        <Text style={styles.label}>Password</Text>
+        <Text className="mb-1.5 font-semibold text-slate-700">Password</Text>
         <TextInput
           placeholder="Create password"
           value={password}
           onChangeText={setPassword}
-          style={styles.input}
+          className="mb-3 rounded-xl border border-slate-300 bg-slate-50 p-3"
           secureTextEntry
           textContentType="newPassword"
           accessibilityLabel="Password input"
         />
 
         <Pressable
-          style={[styles.primaryButton, loading && styles.buttonDisabled]}
+          className={`mt-1 items-center rounded-xl py-3 ${loading ? 'bg-slate-500' : 'bg-slate-900'}`}
           onPress={handleRegister}
           disabled={loading}
           accessibilityRole="button"
           accessibilityLabel="Register"
         >
-          <Text style={styles.primaryButtonText}>{loading ? 'Registering...' : 'Register'}</Text>
+          <Text className="font-bold text-white">{loading ? 'Registering...' : 'Register'}</Text>
         </Pressable>
 
-        <View style={styles.loginLink}>
-          <Text style={styles.helperText}>Already have an account?</Text>
+        <View className="mt-4 flex-row items-center justify-center">
+          <Text className="text-slate-500">Already have an account?</Text>
           <Pressable onPress={() => navigation.navigate('Login')} accessibilityRole="button">
-            <Text style={styles.linkText}>Sign in</Text>
+            <Text className="ml-1 font-bold text-blue-700">Sign in</Text>
           </Pressable>
         </View>
       </View>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', backgroundColor: '#f1f5f9', padding: 16 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  title: { fontSize: 28, fontWeight: '700', marginBottom: 8, color: '#0f172a' },
-  subtitle: { fontSize: 14, color: '#64748b', marginBottom: 18 },
-  label: { color: '#334155', marginBottom: 6, fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
-    backgroundColor: '#f8fafc',
-  },
-  primaryButton: {
-    marginTop: 4,
-    backgroundColor: '#0f172a',
-    borderRadius: 10,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  buttonDisabled: { opacity: 0.6 },
-  primaryButtonText: { color: '#fff', fontWeight: '700' },
-  loginLink: { marginTop: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  helperText: { color: '#64748b' },
-  linkText: { marginLeft: 4, color: '#1d4ed8', fontWeight: '700' },
-});

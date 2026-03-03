@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Image, StyleSheet, Pressable } from 'react-native';
+import { Text, Image, Pressable, View } from 'react-native';
 import { Course } from '../types/course';
 
 const FALLBACK_IMAGE = 'https://picsum.photos/seed/course-thumb/400/220';
@@ -20,80 +20,44 @@ function CourseCard({ course, onPress, isBookmarked = false, onBookmark }: Props
 
   return (
     <Pressable
-      style={styles.card}
+      className="mb-4 rounded-2xl border border-slate-200 bg-white p-3"
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Open course ${course.title}`}
     >
-      <Image source={{ uri: imageUri }} style={styles.image} onError={() => setImageUri(FALLBACK_IMAGE)} />
+      <Image
+        source={{ uri: imageUri }}
+        className="mb-2.5 h-40 rounded-xl"
+        onError={() => setImageUri(FALLBACK_IMAGE)}
+      />
       {onBookmark && (
         <Pressable
-          style={styles.bookmark}
+          className="absolute right-2.5 top-2.5 z-10 rounded-2xl bg-indigo-50 px-2.5 py-1.5"
           onPress={onBookmark}
           accessibilityRole="button"
           accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Save course'}
         >
-          <Text style={styles.bookmarkText}>{isBookmarked ? 'Saved' : 'Save'}</Text>
+          <Text className="text-xs font-bold text-blue-800">{isBookmarked ? 'Saved' : 'Save'}</Text>
         </Pressable>
       )}
-      <Text style={styles.title} numberOfLines={2}>
+      <Text className="mb-1.5 text-[17px] font-bold leading-6 text-slate-900" numberOfLines={2}>
         {course.title}
       </Text>
+      <Text className="mb-1 text-sm font-semibold text-slate-700" numberOfLines={1}>
+        {course.instructor}
+      </Text>
       {!!course.description && (
-        <Text style={styles.description} numberOfLines={3}>
+        <Text className="text-sm leading-5 text-slate-600" numberOfLines={3}>
           {course.description}
         </Text>
+      )}
+      {!!course.label && (
+        <View className="mt-2 self-start rounded-full bg-slate-100 px-2.5 py-1">
+          <Text className="text-xs font-semibold text-slate-700">{course.label}</Text>
+        </View>
       )}
     </Pressable>
   );
 }
 
 export default React.memo(CourseCard);
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    marginBottom: 16,
-    borderRadius: 14,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    shadowColor: '#0f172a',
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
-  },
-  bookmark: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 2,
-    backgroundColor: '#eef2ff',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 14,
-  },
-  bookmarkText: {
-    color: '#1e40af',
-    fontWeight: '700',
-    fontSize: 12,
-  },
-  image: {
-    height: 160,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 17,
-    lineHeight: 23,
-    fontWeight: '700',
-    color: '#0f172a',
-    marginBottom: 6,
-  },
-  description: {
-    color: '#475569',
-    marginTop: 0,
-    lineHeight: 18,
-  },
-});

@@ -1,22 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Alert,
-  ActivityIndicator,
-  TouchableOpacity,
-  Pressable,
-} from 'react-native';
+import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Pressable } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { courseService } from '../../services/api/courseService';
 import { downloadLessonVideo, getDownloadedLessonUri } from '../../services/downloads';
 import { usePreferencesStore } from '../../store/preferencesStore';
-
-const { width } = Dimensions.get('window');
 
 export default function LessonDetailsScreen({ route }: any) {
   const { lesson } = route.params;
@@ -29,7 +18,6 @@ export default function LessonDetailsScreen({ route }: any) {
   const [error, setError] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const [downloading, setDownloading] = useState(false);
-  const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadedUri, setDownloadedUri] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -119,13 +107,11 @@ export default function LessonDetailsScreen({ route }: any) {
 
     try {
       setDownloading(true);
-      setDownloadProgress(0);
       const uri = await downloadLessonVideo({
         lessonId: lesson.id,
         lessonTitle: lesson.title,
         url: lesson.videoUrl,
         wifiOnly: downloadOnWifiOnly,
-        onProgress: (progress) => setDownloadProgress(progress),
       });
       setDownloadedUri(uri);
       Alert.alert('Download complete', 'Lesson saved for offline access.');
@@ -137,31 +123,31 @@ export default function LessonDetailsScreen({ route }: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{lesson.title}</Text>
-      <Text style={styles.duration}>Duration: {lesson.duration}</Text>
+    <View className="flex-1 bg-white p-4">
+      <Text className="mb-2 text-2xl font-bold">{lesson.title}</Text>
+      <Text className="mb-5 text-base text-slate-500">Duration: {lesson.duration}</Text>
 
-      <View style={styles.videoContainer}>
+      <View className="h-56 overflow-hidden rounded-xl bg-black">
         {loading && !error && (
-          <View style={styles.loaderContainer}>
+          <View className="absolute inset-0 z-10 items-center justify-center bg-black/70">
             <ActivityIndicator size="large" color="#007AFF" />
-            <Text style={styles.loaderText}>Loading video...</Text>
+            <Text className="mt-2 text-white">Loading video...</Text>
           </View>
         )}
 
         {error ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>Failed to load video</Text>
-            <Text style={styles.errorSubText}>Please check your connection</Text>
+          <View className="flex-1 items-center justify-center bg-black">
+            <Text className="mb-1 text-lg font-bold text-red-500">Failed to load video</Text>
+            <Text className="mb-3 text-white">Please check your connection</Text>
             <TouchableOpacity onPress={handleRetry}>
-              <Text style={styles.retryText}>Retry</Text>
+              <Text className="text-base font-bold text-blue-500">Retry</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <VideoView
             key={retryKey}
             player={player}
-            style={styles.video}
+            style={{ flex: 1 }}
             contentFit="contain"
             nativeControls
             fullscreenOptions={{
@@ -176,132 +162,26 @@ export default function LessonDetailsScreen({ route }: any) {
       </View>
 
       {completed && (
-        <View style={styles.completedContainer}>
-          <Text style={styles.completedText}>Lesson Completed</Text>
+        <View className="mt-5 items-center">
+          <Text className="text-lg font-bold text-green-500">Lesson Completed</Text>
         </View>
       )}
 
-      <View style={styles.downloadCard}>
-        <Text style={styles.downloadTitle}>Offline Access</Text>
-        <Text style={styles.downloadMeta}>
+      <View className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-3">
+        <Text className="text-base font-bold text-slate-900">Offline Access</Text>
+        <Text className="mb-2.5 mt-1 text-slate-500">
           {downloadOnWifiOnly ? 'Wi-Fi only downloads enabled' : 'Downloads allowed on any network'}
         </Text>
         <Pressable
-          style={[styles.downloadButton, (downloading || downloadedUri) && styles.downloadButtonDisabled]}
+          className={`items-center rounded-lg py-2.5 ${downloading || downloadedUri ? 'bg-slate-400' : 'bg-blue-700'}`}
           onPress={handleDownload}
           disabled={downloading || Boolean(downloadedUri)}
         >
-          <Text style={styles.downloadButtonText}>
-            {downloadedUri ? 'Downloaded' : downloading ? `Downloading ${Math.round(downloadProgress * 100)}%` : 'Download Lesson'}
+          <Text className="font-bold text-white">
+            {downloadedUri ? 'Downloaded' : downloading ? 'Downloading...' : 'Download Lesson'}
           </Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  duration: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-  },
-  videoContainer: {
-    width: width - 32,
-    height: 220,
-    backgroundColor: '#000',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  video: {
-    flex: 1,
-  },
-  loaderContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    zIndex: 1,
-  },
-  loaderText: {
-    color: '#fff',
-    marginTop: 10,
-    fontSize: 14,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000',
-  },
-  errorText: {
-    color: '#ff3b30',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  errorSubText: {
-    color: '#fff',
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  retryText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  completedContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  completedText: {
-    color: '#34c759',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  downloadCard: {
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#dbeafe',
-    backgroundColor: '#f8fbff',
-    borderRadius: 12,
-    padding: 12,
-  },
-  downloadTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0f172a',
-  },
-  downloadMeta: {
-    color: '#64748b',
-    marginTop: 4,
-    marginBottom: 10,
-  },
-  downloadButton: {
-    backgroundColor: '#1d4ed8',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  downloadButtonDisabled: {
-    backgroundColor: '#94a3b8',
-  },
-  downloadButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-});

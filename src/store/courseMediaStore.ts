@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system/legacy';
+import { Directory, File, Paths } from 'expo-file-system';
 import { create } from 'zustand';
 
 const STORAGE_KEY = 'course_media_store';
-const MEDIA_DIR = `${FileSystem.documentDirectory}course-photos/`;
+const mediaDirectory = new Directory(Paths.document, 'course-photos');
+const MEDIA_DIR = mediaDirectory.uri;
 
 interface CourseMediaState {
   photosByCourse: Record<string, string[]>;
@@ -16,9 +17,8 @@ const persist = async (photosByCourse: Record<string, string[]>) => {
 };
 
 const ensureMediaDir = async () => {
-  const info = await FileSystem.getInfoAsync(MEDIA_DIR);
-  if (!info.exists) {
-    await FileSystem.makeDirectoryAsync(MEDIA_DIR, { intermediates: true });
+  if (!mediaDirectory.exists) {
+    mediaDirectory.create({ idempotent: true, intermediates: true });
   }
 };
 
@@ -31,9 +31,10 @@ const persistPhotoUri = async (courseId: string, uri: string) => {
   const fileExtMatch = uri.match(/\.([a-zA-Z0-9]+)(?:\?|$)/);
   const ext = fileExtMatch?.[1] || 'jpg';
   const filename = `${courseId}-${Date.now()}.${ext}`;
-  const destination = `${MEDIA_DIR}${filename}`;
-  await FileSystem.copyAsync({ from: uri, to: destination });
-  return destination;
+  const sourceFile = new File(uri);
+  const destinationFile = new File(mediaDirectory, filename);
+  sourceFile.copy(destinationFile);
+  return destinationFile.uri;
 };
 
 export const useCourseMediaStore = create<CourseMediaState>((set, get) => ({

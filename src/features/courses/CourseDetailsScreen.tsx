@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  Image,
-  ScrollView,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useCourseStore } from '../../store/courseStore';
@@ -83,11 +73,11 @@ export default function CourseDetailsScreen({ route, navigation }: any) {
 
   const renderLesson = ({ item }: { item: any }) => (
     <TouchableOpacity
-      style={styles.lessonCard}
+      className="mb-2 rounded-xl border border-slate-200 bg-white p-3"
       onPress={() => navigation.navigate('LessonDetails', { lesson: item })}
     >
-      <Text style={styles.lessonTitle}>{item.title}</Text>
-      <Text style={styles.lessonDuration}>Duration: {item.duration}</Text>
+      <Text className="text-base font-bold">{item.title}</Text>
+      <Text className="mt-1 text-sm text-slate-500">Duration: {item.duration}</Text>
     </TouchableOpacity>
   );
 
@@ -100,7 +90,7 @@ export default function CourseDetailsScreen({ route, navigation }: any) {
 
   if (!courseId) {
     return (
-      <View style={styles.centered}>
+      <View className="flex-1 items-center justify-center">
         <Text>Invalid course id.</Text>
       </View>
     );
@@ -108,7 +98,7 @@ export default function CourseDetailsScreen({ route, navigation }: any) {
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
+      <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
       </View>
     );
@@ -116,31 +106,31 @@ export default function CourseDetailsScreen({ route, navigation }: any) {
 
   if (isError || !course) {
     return (
-      <View style={styles.centered}>
+      <View className="flex-1 items-center justify-center">
         <Text>Failed to load course details.</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} className="flex-1 bg-slate-50">
-      <Image source={{ uri: course.thumbnail }} style={styles.thumbnail} />
-      <Text style={styles.courseTitle}>{course.title}</Text>
-      <Text style={styles.instructor}>Instructor: {course.instructor}</Text>
-      <Text style={styles.description}>{course.description}</Text>
-      <Text style={styles.progress}>Progress: {course.progress ?? 0}%</Text>
+    <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
+      <Image source={{ uri: course.thumbnail }} className="mb-3 h-48 w-full rounded-xl bg-slate-200" />
+      <Text className="mb-2 text-2xl font-bold text-slate-900">{course.title}</Text>
+      <Text className="mb-2 text-base text-slate-500">Instructor: {course.instructor}</Text>
+      <Text className="mb-4 text-sm text-slate-700">{course.description}</Text>
+      <Text className="mb-3 font-semibold text-blue-700">Progress: {course.progress ?? 0}%</Text>
 
-      <View style={styles.buttonsContainer}>
+      <View className="mb-4 flex-row flex-wrap">
         <TouchableOpacity
           onPress={handleEnroll}
-          style={[styles.button, enrolled && styles.disabledButton]}
+          className={`mb-2 mr-2 rounded-lg px-3 py-2 ${enrolled ? 'bg-slate-400' : 'bg-slate-900'}`}
           disabled={enrolled}
         >
-          <Text style={styles.buttonText}>{enrolled ? 'Enrolled' : 'Enroll'}</Text>
+          <Text className="font-bold text-white">{enrolled ? 'Enrolled' : 'Enroll'}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={toggleBookmark} style={styles.button}>
-          <Text style={styles.buttonText}>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</Text>
+        <TouchableOpacity onPress={toggleBookmark} className="mb-2 mr-2 rounded-lg bg-slate-900 px-3 py-2">
+          <Text className="font-bold text-white">{isBookmarked ? 'Bookmarked' : 'Bookmark'}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -153,30 +143,30 @@ export default function CourseDetailsScreen({ route, navigation }: any) {
               description: course.description || '',
             })
           }
-          style={styles.button}
+          className="mb-2 mr-2 rounded-lg bg-slate-900 px-3 py-2"
         >
-          <Text style={styles.buttonText}>View Content</Text>
+          <Text className="font-bold text-white">View Content</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleCaptureCoursePhoto} style={styles.button}>
-          <Text style={styles.buttonText}>Capture Note Photo</Text>
+        <TouchableOpacity onPress={handleCaptureCoursePhoto} className="mb-2 mr-2 rounded-lg bg-slate-900 px-3 py-2">
+          <Text className="font-bold text-white">Capture Note Photo</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.mediaHeader}>Course Snapshots</Text>
+      <Text className="mb-2 text-lg font-bold text-slate-900">Course Snapshots</Text>
       {capturedPhotos.length === 0 ? (
-        <Text style={styles.emptyLessons}>No snapshots yet. Capture one from camera.</Text>
+        <Text className="mt-1 text-slate-500">No snapshots yet. Capture one from camera.</Text>
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoStrip}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
           {capturedPhotos.map((uri, index) => (
-            <Image key={`${uri}-${index}`} source={{ uri }} style={styles.photoItem} />
+            <Image key={`${uri}-${index}`} source={{ uri }} className="mr-2.5 h-28 w-28 rounded-xl bg-slate-200" />
           ))}
         </ScrollView>
       )}
 
-      <Text style={styles.lessonsHeader}>Lessons</Text>
+      <Text className="mb-2 text-xl font-bold text-slate-900">Lessons</Text>
       {(course.lessons || []).length === 0 ? (
-        <Text style={styles.emptyLessons}>No lessons available for this course yet.</Text>
+        <Text className="mt-1 text-slate-500">No lessons available for this course yet.</Text>
       ) : (
         <FlatList
           data={course.lessons || []}
@@ -188,52 +178,3 @@ export default function CourseDetailsScreen({ route, navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
-  content: { padding: 16, paddingBottom: 24 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  thumbnail: {
-    width: '100%',
-    height: 190,
-    borderRadius: 12,
-    marginBottom: 12,
-    backgroundColor: '#e2e8f0',
-  },
-  courseTitle: { fontSize: 24, fontWeight: '700', marginBottom: 8, color: '#0f172a' },
-  instructor: { fontSize: 16, color: '#64748b', marginBottom: 12 },
-  description: { fontSize: 14, color: '#333', marginBottom: 16 },
-  progress: { color: '#1d4ed8', fontWeight: '600', marginBottom: 12 },
-  buttonsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
-  button: {
-    backgroundColor: '#0f172a',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  disabledButton: { backgroundColor: '#aaa' },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
-  lessonsHeader: { fontSize: 20, fontWeight: '700', marginBottom: 12, color: '#0f172a' },
-  lessonCard: {
-    padding: 12,
-    backgroundColor: '#ffffff',
-    marginBottom: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  lessonTitle: { fontSize: 16, fontWeight: 'bold' },
-  lessonDuration: { fontSize: 14, color: '#64748b', marginTop: 4 },
-  mediaHeader: { fontSize: 18, fontWeight: '700', marginBottom: 10, color: '#0f172a' },
-  photoStrip: { marginBottom: 16 },
-  photoItem: {
-    width: 110,
-    height: 110,
-    borderRadius: 10,
-    marginRight: 10,
-    backgroundColor: '#e2e8f0',
-  },
-  emptyLessons: { color: '#666', marginTop: 8 },
-});
