@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Directory, File, Paths } from 'expo-file-system';
 import { create } from 'zustand';
+import { reportError } from '../services/errorReporter';
 
 const STORAGE_KEY = 'course_media_store';
 const mediaDirectory = new Directory(Paths.document, 'course-photos');
@@ -50,7 +51,7 @@ export const useCourseMediaStore = create<CourseMediaState>((set, get) => ({
       const parsed = JSON.parse(raw) as Record<string, string[]>;
       set({ photosByCourse: parsed || {} });
     } catch (error) {
-      console.warn('failed to load course media', error);
+      reportError('courseMedia.loadFromStorage', error);
     }
   },
 

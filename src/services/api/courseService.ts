@@ -5,6 +5,7 @@ import { endpoints } from './endpoints';
 import { mockCourses } from '../../features/courses/mockCourses';
 import { mockLessons } from '../../features/courses/mockLessons';
 import { mockModules } from '../../features/courses/mockModules';
+import { reportError } from '../errorReporter';
 
 const FALLBACK_THUMBNAIL = 'https://picsum.photos/seed/course-learning-default/800/450';
 
@@ -157,7 +158,7 @@ export const courseService = {
 
       return mockCourses;
     } catch (e) {
-      console.error('courseService.getCourses error', e);
+      reportError('courseService.getCourses', e);
       return mockCourses;
     }
   },

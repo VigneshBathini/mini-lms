@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, Image, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Switch, ScrollView, Pressable } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuthStore } from '../../store/authStore';
 import { useCourseStore } from '../../store/courseStore';
@@ -70,7 +70,6 @@ export default function ProfileScreen() {
       <View className="mb-4 items-center rounded-2xl border border-slate-200 bg-white py-4">
         <TouchableOpacity
           onPress={takePhoto}
-          onLongPress={pickImage}
           accessibilityRole="button"
           accessibilityLabel="Change profile photo"
         >
@@ -84,10 +83,25 @@ export default function ProfileScreen() {
         </TouchableOpacity>
         <Text className="text-xl font-bold text-slate-900">{user?.name || 'Guest'}</Text>
         <Text className="text-slate-500">{user?.email}</Text>
-        <Text className="mt-2 text-xs text-slate-500">Tap avatar to capture, or choose from gallery</Text>
-        <TouchableOpacity className="mt-2.5 rounded-lg bg-slate-200 px-3 py-2" onPress={pickImage}>
-          <Text className="font-semibold text-slate-900">Choose from Gallery</Text>
-        </TouchableOpacity>
+        <Text className="mt-2 text-xs text-slate-500">Use camera or gallery to update your profile photo</Text>
+        <View className="mt-2.5 flex-row">
+          <TouchableOpacity
+            className="mr-2 rounded-lg bg-slate-900 px-3 py-2"
+            onPress={takePhoto}
+            accessibilityRole="button"
+            accessibilityLabel="Take profile photo"
+          >
+            <Text className="font-semibold text-white">Take Photo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-lg bg-slate-200 px-3 py-2"
+            onPress={pickImage}
+            accessibilityRole="button"
+            accessibilityLabel="Choose profile photo from gallery"
+          >
+            <Text className="font-semibold text-slate-900">Choose from Gallery</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View className="mb-3 rounded-2xl border border-slate-200 bg-white p-3">
@@ -119,7 +133,9 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <Button title="Logout" onPress={logout} />
+      <Pressable className="items-center rounded-xl bg-red-100 py-3" onPress={logout} accessibilityRole="button">
+        <Text className="font-bold text-red-700">Logout</Text>
+      </Pressable>
     </ScrollView>
   );
 }

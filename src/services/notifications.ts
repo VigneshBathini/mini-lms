@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import { reportError } from './errorReporter';
 
 let notificationsInitialized = false;
 let notificationsAvailable = true;
@@ -24,7 +25,7 @@ const getNotificationsModule = async (): Promise<NotificationsModule | null> => 
   try {
     return await notificationsModulePromise;
   } catch (error) {
-    console.warn('Notifications module unavailable in this runtime.', error);
+    reportError('notifications.moduleUnavailable', error);
     notificationsAvailable = false;
     return null;
   }
@@ -85,7 +86,7 @@ export const initializeNotifications = async () => {
 
     notificationsInitialized = true;
   } catch (error) {
-    console.warn('Notifications are unavailable in this runtime.', error);
+    reportError('notifications.initialize', error);
     notificationsAvailable = false;
   }
 };
@@ -109,7 +110,7 @@ export const requestNotificationPermissions = async () => {
     }
     return finalStatus === 'granted';
   } catch (error) {
-    console.warn('Failed to request notification permissions.', error);
+    reportError('notifications.permissions', error);
     notificationsAvailable = false;
     return false;
   }
@@ -140,7 +141,7 @@ export const scheduleLocalNotification = async (
       trigger: await normalizeTrigger(trigger),
     });
   } catch (error) {
-    console.warn('Failed to schedule notification.', error);
+    reportError('notifications.schedule', error);
     notificationsAvailable = false;
   }
 };
@@ -162,7 +163,7 @@ export const cancelAllScheduled = async () => {
     }
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch (error) {
-    console.warn('Failed to cancel notifications.', error);
+    reportError('notifications.cancelAll', error);
     notificationsAvailable = false;
   }
 };

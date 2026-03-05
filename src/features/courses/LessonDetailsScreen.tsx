@@ -6,6 +6,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { courseService } from '../../services/api/courseService';
 import { downloadLessonVideo, getDownloadedLessonUri } from '../../services/downloads';
 import { usePreferencesStore } from '../../store/preferencesStore';
+import ProgressBar from '../../components/ProgressBar';
 
 export default function LessonDetailsScreen({ route }: any) {
   const { lesson } = route.params;
@@ -18,6 +19,7 @@ export default function LessonDetailsScreen({ route }: any) {
   const [error, setError] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadedUri, setDownloadedUri] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -107,11 +109,13 @@ export default function LessonDetailsScreen({ route }: any) {
 
     try {
       setDownloading(true);
+      setDownloadProgress(0);
       const uri = await downloadLessonVideo({
         lessonId: lesson.id,
         lessonTitle: lesson.title,
         url: lesson.videoUrl,
         wifiOnly: downloadOnWifiOnly,
+        onProgress: (percent) => setDownloadProgress(percent),
       });
       setDownloadedUri(uri);
       Alert.alert('Download complete', 'Lesson saved for offline access.');
@@ -172,6 +176,12 @@ export default function LessonDetailsScreen({ route }: any) {
         <Text className="mb-2.5 mt-1 text-slate-500">
           {downloadOnWifiOnly ? 'Wi-Fi only downloads enabled' : 'Downloads allowed on any network'}
         </Text>
+        {downloading ? (
+          <View className="mb-2.5">
+            <Text className="text-sm text-slate-600">Downloading... {downloadProgress}%</Text>
+            <ProgressBar progress={downloadProgress} />
+          </View>
+        ) : null}
         <Pressable
           className={`items-center rounded-lg py-2.5 ${downloading || downloadedUri ? 'bg-slate-400' : 'bg-blue-700'}`}
           onPress={handleDownload}

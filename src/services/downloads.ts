@@ -1,4 +1,5 @@
 import { Directory, File, Paths } from 'expo-file-system';
+import * as FileSystemLegacy from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -59,6 +60,7 @@ type DownloadOptions = {
   lessonTitle: string;
   url: string;
   wifiOnly: boolean;
+  onProgress?: (percent: number) => void;
 };
 
 export const downloadLessonVideo = async ({
@@ -66,16 +68,36 @@ export const downloadLessonVideo = async ({
   lessonTitle,
   url,
   wifiOnly,
+  onProgress,
 }: DownloadOptions) => {
   await validateNetworkForDownload(wifiOnly);
 
   const downloadDir = await ensureDownloadDir();
   const targetFile = new File(downloadDir, `${sanitizeName(lessonTitle || lessonId)}-${lessonId}.mp4`);
+  if (targetFile.exists) {
+    targetFile.delete();
+  }
 
-  const resultFile = await File.downloadFileAsync(url, targetFile, { idempotent: true });
+  onProgress?.(0);
+  const downloadResumable = FileSystemLegacy.createDownloadResumable(
+    url,
+    targetFile.uri,
+    {},
+    (progressData: FileSystemLegacy.DownloadProgressData) => {
+      const total = progressData.totalBytesExpectedToWrite;
+      const written = progressData.totalBytesWritten;
+      if (!total || total <= 0) {
+        return;
+      }
+      onProgress?.(Math.max(0, Math.min(100, Math.round((written / total) * 100))));
+    }
+  );
+
+  const resultFile = await downloadResumable.downloadAsync();
   if (!resultFile?.uri) {
     throw new Error('Download failed. Please try again.');
   }
+  onProgress?.(100);
 
   const map = await readDownloadMap();
   map[lessonId] = resultFile.uri;

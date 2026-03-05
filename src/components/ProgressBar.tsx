@@ -1,28 +1,15 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 interface Props {
   progress: number; // 0–100
 }
 
 export default function ProgressBar({ progress }: Props) {
+  const safeProgress = Math.max(0, Math.min(100, progress));
   return (
-    <View style={styles.container}>
-      <View style={[styles.fill, { width: `${progress}%` }]} />
+    <View className="mt-2 h-2 overflow-hidden rounded-md bg-slate-200">
+      <View className="h-full bg-blue-500" style={{ width: `${safeProgress}%` }} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: 8,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 6,
-    overflow: 'hidden',
-    marginTop: 8,
-  },
-  fill: {
-    height: '100%',
-    backgroundColor: '#3b82f6',
-  },
-});

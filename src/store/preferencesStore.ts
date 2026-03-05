@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { reportError } from '../services/errorReporter';
 
 const STORAGE_KEY = 'preferences_store';
 
@@ -52,7 +53,7 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
         hydrated: true,
       });
     } catch (error) {
-      console.warn('failed to load preferences', error);
+      reportError('preferences.loadFromStorage', error);
       set({ hydrated: true });
     }
   },

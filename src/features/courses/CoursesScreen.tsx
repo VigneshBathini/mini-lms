@@ -83,7 +83,12 @@ export default function CoursesScreen({ navigation }: any) {
     return (
       <View className="flex-1 items-center justify-center bg-slate-50 px-6">
         <Text className="mb-3 text-center text-slate-700">{error}</Text>
-        <Pressable className="rounded-lg bg-slate-900 px-4 py-2" onPress={loadInitialCourses}>
+        <Pressable
+          className="rounded-lg bg-slate-900 px-4 py-2"
+          onPress={loadInitialCourses}
+          accessibilityRole="button"
+          accessibilityLabel="Retry loading courses"
+        >
           <Text className="font-semibold text-white">Retry</Text>
         </Pressable>
       </View>
@@ -103,7 +108,12 @@ export default function CoursesScreen({ navigation }: any) {
         <View className="mb-3 rounded-xl border border-slate-200 bg-white p-4">
           <Text className="font-bold text-slate-900">No matching courses</Text>
           <Text className="mt-1 text-slate-500">Try a different keyword or clear your search.</Text>
-          <Pressable className="mt-2.5 self-start rounded-lg bg-slate-200 px-3 py-2" onPress={() => setSearch('')}>
+          <Pressable
+            className="mt-2.5 self-start rounded-lg bg-slate-200 px-3 py-2"
+            onPress={() => setSearch('')}
+            accessibilityRole="button"
+            accessibilityLabel="Clear course search"
+          >
             <Text className="font-semibold text-slate-900">Clear search</Text>
           </Pressable>
         </View>

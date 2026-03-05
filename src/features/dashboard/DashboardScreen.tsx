@@ -28,7 +28,12 @@ type CourseRowProps = {
 
 function CourseRow({ id, title, instructor, progress, onPress }: CourseRowProps) {
   return (
-    <Pressable className="mb-2 rounded-xl bg-slate-50 p-2.5" onPress={() => onPress(id)}>
+    <Pressable
+      className="mb-2 rounded-xl bg-slate-50 p-2.5"
+      onPress={() => onPress(id)}
+      accessibilityRole="button"
+      accessibilityLabel={`Open course ${title}`}
+    >
       <View className="flex-row items-center justify-between">
         <Text className="mr-2 flex-1 font-semibold text-slate-800" numberOfLines={1}>
           {title}
@@ -158,10 +163,20 @@ export default function DashboardScreen() {
       </View>
 
       <View className="mb-3 flex-row">
-        <Pressable className="mr-2 flex-1 items-center rounded-xl bg-slate-900 py-3" onPress={() => router.push('/(tabs)/courses')}>
+        <Pressable
+          className="mr-2 flex-1 items-center rounded-xl bg-slate-900 py-3"
+          onPress={() => router.push('/(tabs)/courses')}
+          accessibilityRole="button"
+          accessibilityLabel="Browse courses"
+        >
           <Text className="font-semibold text-white">Browse Courses</Text>
         </Pressable>
-        <Pressable className="ml-2 flex-1 items-center rounded-xl bg-slate-200 py-3" onPress={() => router.push('/(tabs)/profile')}>
+        <Pressable
+          className="ml-2 flex-1 items-center rounded-xl bg-slate-200 py-3"
+          onPress={() => router.push('/(tabs)/profile')}
+          accessibilityRole="button"
+          accessibilityLabel="Open profile"
+        >
           <Text className="font-semibold text-slate-900">Profile</Text>
         </Pressable>
       </View>
@@ -222,7 +237,12 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <Pressable className="mt-1 rounded-xl bg-red-100 py-3" onPress={logout}>
+      <Pressable
+        className="mt-1 rounded-xl bg-red-100 py-3"
+        onPress={logout}
+        accessibilityRole="button"
+        accessibilityLabel="Logout"
+      >
         <Text className="text-center font-bold text-red-700">Logout</Text>
       </Pressable>
     </ScrollView>

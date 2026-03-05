@@ -70,7 +70,12 @@ export default function WebViewScreen({ route }: any) {
       {loadError ? (
         <View className="flex-1 items-center justify-center">
           <Text className="mb-2.5 text-red-700">Failed to load content.</Text>
-          <Pressable className="rounded-lg bg-blue-700 px-4 py-2.5" onPress={handleRetry}>
+          <Pressable
+            className="rounded-lg bg-blue-700 px-4 py-2.5"
+            onPress={handleRetry}
+            accessibilityRole="button"
+            accessibilityLabel="Retry loading web content"
+          >
             <Text className="font-semibold text-white">Retry</Text>
           </Pressable>
         </View>

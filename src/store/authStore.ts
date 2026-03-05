@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { User } from '../types/user';
 import { authService } from '../services/api/authService';
 import { clearAuthTokens, getAccessToken, saveAccessToken, saveRefreshToken } from '../services/auth/tokenStorage';
+import { reportError } from '../services/errorReporter';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -28,7 +29,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       set({ isAuthenticated: true, user: response.user });
     } catch (err) {
-      console.error('login error', err);
+      reportError('auth.login', err);
       throw err;
     }
   },
@@ -48,7 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       set({ isAuthenticated: true, user: response.user });
     } catch (err) {
-      console.error('register error', err);
+      reportError('auth.register', err);
       throw err;
     }
   },

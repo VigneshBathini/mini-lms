@@ -1,5 +1,6 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { reportError } from '../services/errorReporter';
 
 type Props = {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export default class AppErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: unknown) {
-    console.error('AppErrorBoundary caught error', error);
+    reportError('app.errorBoundary', error);
   }
 
   reset = () => {
@@ -27,11 +28,11 @@ export default class AppErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <View style={styles.container}>
-          <Text style={styles.title}>Something went wrong</Text>
-          <Text style={styles.subtitle}>Please try again.</Text>
-          <Pressable style={styles.button} onPress={this.reset}>
-            <Text style={styles.buttonText}>Retry</Text>
+        <View className="flex-1 items-center justify-center bg-white p-5">
+          <Text className="mb-1.5 text-xl font-bold text-slate-900">Something went wrong</Text>
+          <Text className="mb-4 text-slate-600">Please try again.</Text>
+          <Pressable className="rounded-lg bg-blue-700 px-3.5 py-2.5" onPress={this.reset}>
+            <Text className="font-semibold text-white">Retry</Text>
           </Pressable>
         </View>
       );
@@ -40,33 +41,3 @@ export default class AppErrorBoundary extends React.Component<Props, State> {
     return this.props.children;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0f172a',
-    marginBottom: 6,
-  },
-  subtitle: {
-    color: '#475569',
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: '#1d4ed8',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-});

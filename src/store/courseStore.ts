@@ -4,6 +4,7 @@ import { retryRequest } from '../services/api/retry';
 import { scheduleLocalNotification } from '../services/notifications';
 import { courseService } from '../services/api/courseService';
 import { Course } from '../types/course';
+import { reportError } from '../services/errorReporter';
 
 interface CourseStore {
   courses: Course[];
@@ -96,7 +97,7 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
         bookmarkMilestoneNotified: get().bookmarkMilestoneNotified,
       });
     } catch (error) {
-      console.error('failed to load courses', error);
+      reportError('courseStore.loadCourses', error);
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
         if (!stored) {
@@ -142,7 +143,7 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
         bookmarkMilestoneNotified: Boolean(parsed.bookmarkMilestoneNotified),
       });
     } catch (error) {
-      console.warn('failed to load course store', error);
+      reportError('courseStore.loadFromStorage', error);
     }
   },
 }));
