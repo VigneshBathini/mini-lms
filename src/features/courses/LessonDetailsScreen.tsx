@@ -7,8 +7,14 @@ import { courseService } from '../../services/api/courseService';
 import { downloadLessonVideo, getDownloadedLessonUri } from '../../services/downloads';
 import { usePreferencesStore } from '../../store/preferencesStore';
 import ProgressBar from '../../components/ProgressBar';
+import { LessonDetailsRoute } from '../../types/screens';
+import { getErrorMessage } from '../../utils/error';
 
-export default function LessonDetailsScreen({ route }: any) {
+type LessonDetailsScreenProps = {
+  route: LessonDetailsRoute;
+};
+
+export default function LessonDetailsScreen({ route }: LessonDetailsScreenProps) {
   const { lesson } = route.params;
   const queryClient = useQueryClient();
   const autoplayVideos = usePreferencesStore((state) => state.autoplayVideos);
@@ -119,8 +125,8 @@ export default function LessonDetailsScreen({ route }: any) {
       });
       setDownloadedUri(uri);
       Alert.alert('Download complete', 'Lesson saved for offline access.');
-    } catch (downloadError: any) {
-      Alert.alert('Download failed', downloadError?.message || 'Unable to download lesson video.');
+    } catch (downloadError) {
+      Alert.alert('Download failed', getErrorMessage(downloadError, 'Unable to download lesson video.'));
     } finally {
       setDownloading(false);
     }

@@ -11,8 +11,14 @@ import { LegendList, LegendListRenderItemProps } from '@legendapp/list';
 import CourseCard from '../../components/CourseCard';
 import { useCourseStore } from '../../store/courseStore';
 import { Course } from '../../types/course';
+import { CoursesNavigation } from '../../types/screens';
+import { getErrorMessage } from '../../utils/error';
 
-export default function CoursesScreen({ navigation }: any) {
+type CoursesScreenProps = {
+  navigation: CoursesNavigation;
+};
+
+export default function CoursesScreen({ navigation }: CoursesScreenProps) {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -33,8 +39,8 @@ export default function CoursesScreen({ navigation }: any) {
     setError(null);
     try {
       await loadCourses();
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load courses.');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load courses.'));
     } finally {
       setLoading(false);
     }
@@ -49,8 +55,8 @@ export default function CoursesScreen({ navigation }: any) {
     setError(null);
     try {
       await loadCourses();
-    } catch (err: any) {
-      setError(err?.message || 'Failed to refresh courses.');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to refresh courses.'));
     } finally {
       setRefreshing(false);
     }

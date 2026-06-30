@@ -77,7 +77,51 @@ const TECH_COURSE_IMAGES = [
   'https://picsum.photos/seed/system-design-course/800/450',
 ];
 
-const getThumbnailFromProduct = (product: any): string => {
+type RawProduct = {
+  id?: string | number;
+  thumbnail?: string;
+  image?: string;
+  images?: string[];
+  rating?: number;
+};
+
+type RawUser = {
+  name?: {
+    first?: string;
+    last?: string;
+  };
+};
+
+const extractArray = <T>(input: unknown): T[] => {
+  if (Array.isArray(input)) {
+    return input as T[];
+  }
+
+  if (
+    typeof input === 'object' &&
+    input !== null &&
+    'data' in input &&
+    Array.isArray((input as { data?: unknown }).data)
+  ) {
+    return (input as { data: T[] }).data;
+  }
+
+  if (
+    typeof input === 'object' &&
+    input !== null &&
+    'data' in input &&
+    typeof (input as { data?: unknown }).data === 'object' &&
+    (input as { data?: unknown }).data !== null &&
+    'data' in ((input as { data: { data?: unknown } }).data) &&
+    Array.isArray((input as { data: { data: T[] } }).data.data)
+  ) {
+    return (input as { data: { data: T[] } }).data.data;
+  }
+
+  return [];
+};
+
+const getThumbnailFromProduct = (product: RawProduct): string => {
   if (typeof product?.thumbnail === 'string' && product.thumbnail.length > 0) {
     return product.thumbnail;
   }
@@ -114,21 +158,8 @@ export const courseService = {
       const rawProducts = productsRes.data;
       const rawUsers = usersRes.data;
 
-      const products: any[] = Array.isArray(rawProducts?.data?.data)
-        ? rawProducts.data.data
-        : Array.isArray(rawProducts?.data)
-          ? rawProducts.data
-          : Array.isArray(rawProducts)
-            ? rawProducts
-            : [];
-
-      const users: any[] = Array.isArray(rawUsers?.data?.data)
-        ? rawUsers.data.data
-        : Array.isArray(rawUsers?.data)
-          ? rawUsers.data
-          : Array.isArray(rawUsers)
-            ? rawUsers
-            : [];
+      const products = extractArray<RawProduct>(rawProducts);
+      const users = extractArray<RawUser>(rawUsers);
 
       // map instructors list to simplified names
       const instructors = users.map((u) => {
@@ -141,6 +172,7 @@ export const courseService = {
       const mappedCourses = products.map((p, idx) => {
         const instructor = instructors.length ? instructors[idx % instructors.length] : 'Unknown';
         const content = deriveCourseContent(idx);
+        const rating = typeof p.rating === 'number' ? p.rating : 0;
         return {
           id: String(p.id || idx),
           title: content.title,
@@ -148,7 +180,7 @@ export const courseService = {
           instructor,
           thumbnail: TECH_COURSE_IMAGES[idx % TECH_COURSE_IMAGES.length] || getThumbnailFromProduct(p) || FALLBACK_THUMBNAIL,
           description: content.description,
-          progress: Number.isFinite(p.rating) ? Math.round((p.rating / 5) * 100) : 0,
+          progress: Number.isFinite(rating) ? Math.round((rating / 5) * 100) : 0,
         } as Course;
       });
 

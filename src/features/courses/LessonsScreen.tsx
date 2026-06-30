@@ -8,8 +8,14 @@ import {
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { courseService } from '../../services/api/courseService';
+import { LessonsNavigation, LessonsRoute } from '../../types/screens';
 
-export default function LessonsScreen({ route, navigation }: any) {
+type LessonsScreenProps = {
+  route: LessonsRoute;
+  navigation: LessonsNavigation;
+};
+
+export default function LessonsScreen({ route, navigation }: LessonsScreenProps) {
   const module = route?.params?.module;
 
   if (!module?.id) {

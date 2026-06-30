@@ -9,8 +9,14 @@ import {
   Platform,
 } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
+import { AuthNavigation } from '../../types/screens';
+import { getErrorMessage } from '../../utils/error';
 
-export default function LoginScreen({ navigation }: any) {
+type LoginScreenProps = {
+  navigation: Pick<AuthNavigation, 'navigate'>;
+};
+
+export default function LoginScreen({ navigation }: LoginScreenProps) {
   const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,8 +30,8 @@ export default function LoginScreen({ navigation }: any) {
     setLoading(true);
     try {
       await login(email, password);
-    } catch (err: any) {
-      Alert.alert('Login Failed', err.message || 'Unknown error');
+    } catch (err) {
+      Alert.alert('Login Failed', getErrorMessage(err, 'Unknown error'));
     } finally {
       setLoading(false);
     }

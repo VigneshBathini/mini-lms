@@ -1,8 +1,14 @@
 import React, { useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
+import { WebViewRoute } from '../../types/screens';
 
-export default function WebViewScreen({ route }: any) {
+type WebViewScreenProps = {
+  route: WebViewRoute;
+};
+
+export default function WebViewScreen({ route }: WebViewScreenProps) {
   const courseId = route?.params?.courseId || 'unknown';
   const courseTitle = route?.params?.title || 'Course Content';
   const courseThumbnail = route?.params?.thumbnail || '';
@@ -54,7 +60,7 @@ export default function WebViewScreen({ route }: any) {
   const [statusMessage, setStatusMessage] = React.useState('Loading content...');
   const webViewRef = React.useRef<WebView>(null);
 
-  const handleMessage = (event: any) => {
+  const handleMessage = (event: WebViewMessageEvent) => {
     const data = String(event?.nativeEvent?.data || '');
     setStatusMessage(data);
   };

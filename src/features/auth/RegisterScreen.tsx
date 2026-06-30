@@ -9,8 +9,14 @@ import {
   Platform,
 } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
+import { AuthNavigation } from '../../types/screens';
+import { getErrorMessage } from '../../utils/error';
 
-export default function RegisterScreen({ navigation }: any) {
+type RegisterScreenProps = {
+  navigation: Pick<AuthNavigation, 'navigate'>;
+};
+
+export default function RegisterScreen({ navigation }: RegisterScreenProps) {
   const register = useAuthStore((state) => state.register);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -25,8 +31,8 @@ export default function RegisterScreen({ navigation }: any) {
     setLoading(true);
     try {
       await register(name, email, password);
-    } catch (err: any) {
-      Alert.alert('Registration Failed', err.message || 'Unknown error');
+    } catch (err) {
+      Alert.alert('Registration Failed', getErrorMessage(err, 'Unknown error'));
     } finally {
       setLoading(false);
     }

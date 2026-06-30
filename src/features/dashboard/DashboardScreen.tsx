@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } 
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useCourseStore } from '../../store/courseStore';
+import { getErrorMessage } from '../../utils/error';
 
 type StatCardProps = {
   label: string;
@@ -75,8 +76,8 @@ export default function DashboardScreen() {
       setError(null);
       try {
         await loadCourses();
-      } catch (err: any) {
-        setError(err?.message || 'Could not load dashboard data.');
+      } catch (err) {
+        setError(getErrorMessage(err, 'Could not load dashboard data.'));
       } finally {
         if (isRefresh) {
           setRefreshing(false);

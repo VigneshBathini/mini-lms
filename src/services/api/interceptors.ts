@@ -5,6 +5,7 @@ import { clearAuthTokens, getAccessToken, getRefreshToken, saveAccessToken, save
 import { endpoints } from './endpoints';
 
 type RetryableRequest = InternalAxiosRequestConfig & { _retry?: boolean };
+type ErrorPayload = { message?: string };
 
 const tryRefreshAccessToken = async (client: AxiosInstance) => {
   const refreshToken = await getRefreshToken();
@@ -82,9 +83,13 @@ export const attachInterceptors = (client: AxiosInstance) => {
 
       const apiError: ApiError = {
         message:
-          (error.response?.data as any)?.message ||
+          (typeof error.response?.data === 'object' &&
+          error.response?.data !== null &&
+          'message' in error.response.data
+            ? (error.response.data as ErrorPayload).message
+            : undefined) ||
           error.message ||
-          "Something went wrong",
+          'Something went wrong',
         status: error.response?.status || 500,
       };
 

@@ -6,8 +6,15 @@ import { useCourseStore } from '../../store/courseStore';
 import { useCourseMediaStore } from '../../store/courseMediaStore';
 import { courseService } from '../../services/api/courseService';
 import { reportError } from '../../services/errorReporter';
+import { Lesson } from '../../types/course';
+import { CourseDetailsNavigation, CourseDetailsRoute } from '../../types/screens';
 
-export default function CourseDetailsScreen({ route, navigation }: any) {
+type CourseDetailsScreenProps = {
+  route: CourseDetailsRoute;
+  navigation: CourseDetailsNavigation;
+};
+
+export default function CourseDetailsScreen({ route, navigation }: CourseDetailsScreenProps) {
   const courseId = String(route?.params?.courseId ?? route?.params?.course?.id ?? '');
   const queryClient = useQueryClient();
 
@@ -77,7 +84,7 @@ export default function CourseDetailsScreen({ route, navigation }: any) {
     }
   };
 
-  const renderLesson = ({ item }: { item: any }) => (
+  const renderLesson = ({ item }: { item: Lesson }) => (
     <TouchableOpacity
       className="mb-2 rounded-xl border border-slate-200 bg-white p-3"
       onPress={() => navigation.navigate('LessonDetails', { lesson: item })}

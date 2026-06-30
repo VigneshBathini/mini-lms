@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import type { TimeIntervalTriggerInput } from 'expo-notifications';
 import { reportError } from './errorReporter';
 
 let notificationsInitialized = false;
@@ -10,6 +11,12 @@ const isExpoGo =
   (Constants as { appOwnership?: string | null }).appOwnership === 'expo';
 
 type NotificationsModule = typeof import('expo-notifications');
+type LocalNotificationTrigger =
+  | number
+  | {
+      seconds: number;
+      repeats?: boolean;
+    };
 
 let notificationsModulePromise: Promise<NotificationsModule> | null = null;
 
@@ -29,31 +36,6 @@ const getNotificationsModule = async (): Promise<NotificationsModule | null> => 
     notificationsAvailable = false;
     return null;
   }
-};
-
-const normalizeTrigger = async (trigger: any) => {
-  const Notifications = await getNotificationsModule();
-  if (!Notifications) {
-    return trigger;
-  }
-
-  if (typeof trigger === 'number') {
-    return {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: trigger,
-      repeats: false,
-    };
-  }
-
-  if (trigger && typeof trigger === 'object' && typeof trigger.seconds === 'number') {
-    return {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: trigger.seconds,
-      repeats: Boolean(trigger.repeats),
-    };
-  }
-
-  return trigger;
 };
 
 export const initializeNotifications = async () => {
@@ -119,7 +101,7 @@ export const requestNotificationPermissions = async () => {
 export const scheduleLocalNotification = async (
   title: string,
   body: string,
-  trigger: any
+  trigger: LocalNotificationTrigger
 ) => {
   if (Platform.OS === 'web' || isExpoGo || !notificationsAvailable) {
     return;
@@ -136,9 +118,15 @@ export const scheduleLocalNotification = async (
       return;
     }
 
+    const normalizedTrigger: TimeIntervalTriggerInput = {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: typeof trigger === 'number' ? trigger : trigger.seconds,
+      repeats: typeof trigger === 'number' ? false : Boolean(trigger.repeats),
+    };
+
     await Notifications.scheduleNotificationAsync({
       content: { title, body },
-      trigger: await normalizeTrigger(trigger),
+      trigger: normalizedTrigger,
     });
   } catch (error) {
     reportError('notifications.schedule', error);
